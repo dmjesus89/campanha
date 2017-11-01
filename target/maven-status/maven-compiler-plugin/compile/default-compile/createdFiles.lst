@@ -1,0 +1,8 @@
+com/br/campanha/mvc/controller/IndexController.class
+com/br/campanha/mvc/dao/repository/CamapanhaRepository.class
+com/br/campanha/mvc/entity/CampanhaEntity.class
+com/br/campanha/mvc/controller/CampanhaController.class
+com/br/campanha/exception/CampanhaNotFoundException.class
+com/br/campanha/service/CampanhaService.class
+com/br/campanha/CampanhaApplication.class
+com/br/campanha/service/impl/CampanhaServiceImpl.class
