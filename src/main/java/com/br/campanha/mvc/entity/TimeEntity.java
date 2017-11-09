@@ -28,6 +28,11 @@ public class TimeEntity implements Serializable {
 		super();
 	}
 
+	public TimeEntity(String nomeTime) {
+		super();
+		this.nomeTime = nomeTime;
+	}
+
 	public TimeEntity(Long idTime, String nomeTime) {
 		super();
 		this.idTime = idTime;

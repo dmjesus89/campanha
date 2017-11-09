@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 import com.br.campanha.mvc.entity.CampanhaEntity;
 
 @Repository
-public interface CamapanhaRepository extends CrudRepository<CampanhaEntity, Long> {
+public interface CampanhaRepository extends CrudRepository<CampanhaEntity, Long> {
 
 	/**
 	 * Método responsável por filtrar apenas as campanhas vigentes, considerando

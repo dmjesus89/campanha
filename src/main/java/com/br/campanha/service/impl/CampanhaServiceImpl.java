@@ -6,24 +6,26 @@
 package com.br.campanha.service.impl;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.br.campanha.exception.CampanhaInvalidaException;
 import com.br.campanha.exception.CampanhaNotFoundException;
+import com.br.campanha.exception.DataInvalidaException;
 import com.br.campanha.mvc.entity.CampanhaEntity;
-import com.br.campanha.mvc.repository.CamapanhaRepository;
+import com.br.campanha.mvc.repository.CampanhaRepository;
 import com.br.campanha.service.CampanhaService;
 
 @Service
 public class CampanhaServiceImpl implements CampanhaService {
 
 	@Autowired
-	private CamapanhaRepository camapanhaRepository;
+	private CampanhaRepository camapanhaRepository;
 
 	/**
 	 * Serviço exposto para inserir as campanhas.
@@ -31,23 +33,23 @@ public class CampanhaServiceImpl implements CampanhaService {
 	 * @return capamanha insredia
 	 */
 	@Override
-	public CampanhaEntity inserir(CampanhaEntity campanha) {
+	@Transactional(rollbackFor = { Exception.class })
+	public List<CampanhaEntity> inserir(List<CampanhaEntity> listaCampanha)
+			throws CampanhaInvalidaException, DataInvalidaException {
 		Logger.getLogger("application").info("Inserindo campanha do Serviço.");
-		List<CampanhaEntity> listaCampanhasSimilares = this.camapanhaRepository
-				.listarVigenciasSimilares(campanha.getDtInicio(), campanha.getDtFim());
-		if (!listaCampanhasSimilares.isEmpty()) {
-			for (int i = 0; i < listaCampanhasSimilares.size(); i++) {
-				CampanhaEntity campanhaIt = listaCampanhasSimilares.get(i);
-				LocalDate dtFim = campanhaIt.getDtFim().plusDays(1);
-				while (dtFim.isEqual(campanha.getDtFim())
-						|| isPossuiVigenciaFinalSimilar(listaCampanhasSimilares, dtFim)) {
-					dtFim = dtFim.plusDays(1);
-				}
-				campanhaIt.setDtFim(dtFim);
-
+		List<CampanhaEntity> listaCampanhaInserido = new ArrayList<>();
+		for (CampanhaEntity campanha : listaCampanha) {
+			if (campanha.isInvalidCampanha()) {
+				throw new CampanhaInvalidaException();
 			}
+			if (campanha.isInvalidDate()) {
+				throw new DataInvalidaException();
+			}
+			configurarDatasVigencia(campanha);
+			camapanhaRepository.save(campanha);
+			listaCampanhaInserido.add(campanha);
 		}
-		return this.camapanhaRepository.save(campanha);
+		return listaCampanhaInserido;
 	}
 
 	/**
@@ -67,12 +69,21 @@ public class CampanhaServiceImpl implements CampanhaService {
 	 * @return capamanha alterada
 	 */
 	@Override
-	public CampanhaEntity alterar(Long id, CampanhaEntity address) throws CampanhaNotFoundException {
+	public CampanhaEntity alterar(Long id, CampanhaEntity campanha)
+			throws CampanhaInvalidaException, CampanhaNotFoundException, DataInvalidaException {
 		Logger.getLogger("application").info("Alterando a campanha do Serviço.");
 		if (!this.camapanhaRepository.exists(id)) {
 			throw new CampanhaNotFoundException();
 		}
-		return this.camapanhaRepository.save(address);
+		if (campanha.isInvalidCampanha()) {
+			throw new CampanhaInvalidaException();
+		}
+		if (campanha.isInvalidDate()) {
+			throw new DataInvalidaException();
+		}
+		configurarDatasVigencia(campanha);
+		campanha.setId(id);
+		return this.camapanhaRepository.save(campanha);
 	}
 
 	/**
@@ -89,6 +100,37 @@ public class CampanhaServiceImpl implements CampanhaService {
 		this.camapanhaRepository.delete(id);
 	}
 
+	/**
+	 * Metódo que verifica se existe alguma campanha vigente no mesmo periodo
+	 * 
+	 * @param campanha
+	 */
+	private void configurarDatasVigencia(CampanhaEntity campanha) {
+		List<CampanhaEntity> listaCampanhasSimilares = this.camapanhaRepository
+				.listarVigenciasSimilares(campanha.getDtInicio(), campanha.getDtFim());
+		if (!listaCampanhasSimilares.isEmpty()) {
+			for (int i = 0; i < listaCampanhasSimilares.size(); i++) {
+				CampanhaEntity campanhaIt = listaCampanhasSimilares.get(i);
+				LocalDate dtFim = campanhaIt.getDtFim().plusDays(1);
+				while (dtFim.isEqual(campanha.getDtFim())
+						|| isPossuiVigenciaFinalSimilar(listaCampanhasSimilares, dtFim)) {
+					dtFim = dtFim.plusDays(1);
+				}
+				campanhaIt.setDtFim(dtFim);
+			}
+		}
+	}
+
+	/**
+	 * Método que verifica se existe na base alguma campanha com a vigencial final
+	 * igual a nova campanha
+	 * 
+	 * @param listaCampanhasVigentesSimilares
+	 * @param dtFim
+	 *            dataFinal da campanha corrente
+	 * @return caso verdadeiro vai somar mais um dia na vigencia final da campanha
+	 *         corrente
+	 */
 	private boolean isPossuiVigenciaFinalSimilar(final List<CampanhaEntity> listaCampanhasVigentesSimilares,
 			final LocalDate dtFim) {
 		for (CampanhaEntity campanhaEntity : listaCampanhasVigentesSimilares) {

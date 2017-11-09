@@ -17,8 +17,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import org.springframework.util.StringUtils;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -34,6 +32,19 @@ public class CampanhaEntity implements Serializable {
 
 	public CampanhaEntity() {
 		super();
+	}
+
+	public CampanhaEntity(Long id) {
+		super();
+		this.id = id;
+	}
+
+	public CampanhaEntity(String nomeCampanha, LocalDate dtInicio, LocalDate dtFim, TimeEntity timeCoracao) {
+		super();
+		this.nomeCampanha = nomeCampanha;
+		this.dtInicio = dtInicio;
+		this.dtFim = dtFim;
+		this.timeCoracao = timeCoracao;
 	}
 
 	public CampanhaEntity(Long id, String nomeCampanha, LocalDate dtInicio, LocalDate dtFim, TimeEntity timeCoracao) {
@@ -147,17 +158,24 @@ public class CampanhaEntity implements Serializable {
 	}
 
 	/**
-	 * Validação de campos vazios e se a data inicial é maior do que a final
+	 * Validação se a data inicial é maior do que a final
 	 * 
 	 * @return
 	 */
 	@JsonIgnore
-	public boolean isValidCampanha() {
-		if (StringUtils.isEmpty(getNomeCampanha()) || StringUtils.isEmpty(getDtInicio())
-				|| StringUtils.isEmpty(getDtFim()) || getDtInicio().isAfter(getDtFim())) {
-			return false;
+	public boolean isInvalidDate() {
+		if (getDtInicio().isAfter(getDtFim())) {
+			return true;
 		}
-		return true;
+		return false;
+	}
+
+	public boolean isInvalidCampanha() {
+		if (getNomeCampanha().isEmpty() || getDtInicio() == null || getDtFim() == null) {
+			return true;
+		}
+		return false;
+
 	}
 
 }
