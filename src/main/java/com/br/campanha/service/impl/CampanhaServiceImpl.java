@@ -34,12 +34,10 @@ public class CampanhaServiceImpl implements CampanhaService {
 	 */
 	@Override
 	@Transactional(rollbackFor = { Exception.class })
-	public List<CampanhaEntity> inserir(List<CampanhaEntity> listaCampanha)
+	public CampanhaEntity inserir(CampanhaEntity campanha)
 			throws CampanhaInvalidaException, DataInvalidaException {
 		Logger.getLogger("application").info("Inserindo campanha do Serviço.");
-		List<CampanhaEntity> listaCampanhaInserido = new ArrayList<>();
-		for (CampanhaEntity campanha : listaCampanha) {
-			if (campanha.isInvalidCampanha()) {
+			if (campanha.isInvalidCampanha() || campanha.getTimeCoracao().isInvalidTime()) {
 				throw new CampanhaInvalidaException();
 			}
 			if (campanha.isInvalidDate()) {
@@ -47,9 +45,7 @@ public class CampanhaServiceImpl implements CampanhaService {
 			}
 			configurarDatasVigencia(campanha);
 			camapanhaRepository.save(campanha);
-			listaCampanhaInserido.add(campanha);
-		}
-		return listaCampanhaInserido;
+		return campanha;
 	}
 
 	/**
@@ -75,7 +71,7 @@ public class CampanhaServiceImpl implements CampanhaService {
 		if (!this.camapanhaRepository.exists(id)) {
 			throw new CampanhaNotFoundException();
 		}
-		if (campanha.isInvalidCampanha()) {
+		if (campanha.isInvalidCampanha() || campanha.getTimeCoracao().isInvalidTime()) {
 			throw new CampanhaInvalidaException();
 		}
 		if (campanha.isInvalidDate()) {

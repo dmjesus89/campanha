@@ -73,10 +73,10 @@ public class CampanhaControllerTeste {
 	@Test
 	public void inserirCampanha() throws Exception {
 
-		String campanhaWithJson = json(Arrays.asList(criarMockitoCampanha1(), criarMockitoCampanha2()));
+		String campanhaWithJson = json(criarMockitoCampanha1());
 
 		this.mockMvc.perform(post("/campanha/inserirCampanha").contentType(contentType).content(campanhaWithJson))
-				.andExpect(status().isCreated()).andExpect(jsonPath("$", hasSize(2))).andReturn();
+				.andExpect(status().isCreated());
 
 	}
 
@@ -84,7 +84,7 @@ public class CampanhaControllerTeste {
 	public void inserirCampanhaDataInvalida() throws Exception {
 		CampanhaEntity campanha = criarMockitoCampanha1();
 		campanha.setDtInicio(campanha.getDtFim().plusDays(1));
-		String campanhaWithJson = json(Arrays.asList(campanha));
+		String campanhaWithJson = json(campanha);
 
 		this.mockMvc.perform(post("/campanha/inserirCampanha").contentType(contentType).content(campanhaWithJson))
 				.andExpect(status().isExpectationFailed()).andReturn();
@@ -95,32 +95,16 @@ public class CampanhaControllerTeste {
 	public void inserirCampanhaInvalida() throws Exception {
 		CampanhaEntity campanha = criarMockitoCampanha1();
 		campanha.setDtInicio(null);
-		String campanhaWithJson = json(Arrays.asList(campanha));
+		String campanhaWithJson = json(campanha);
 
 		this.mockMvc.perform(post("/campanha/inserirCampanha").contentType(contentType).content(campanhaWithJson))
-				.andExpect(status().isExpectationFailed()).andReturn();
+				.andExpect(status().isBadRequest()).andReturn();
 
-	}
-
-	@Test
-	public void listarTodosVigentesSemRetorno() throws Exception {
-
-		for (CampanhaEntity campanha : this.campanhaService.listarTodosVigentes()) {
-			this.mockMvc.perform(
-					delete("/campanha/removerCampanha/{id}", campanha.getId()).accept(MediaType.APPLICATION_JSON))
-					.andReturn();
-		}
-
-		MvcResult result = this.mockMvc
-				.perform(get("/campanha/listaCampanhasVigente").accept(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk()).andReturn();
-
-		assertTrue(result.getResponse().getContentAsString().equals("[]"));
 	}
 
 	@Test
 	public void listarTodosVigentes() throws Exception {
-		String campanhaWithJson = json(Arrays.asList(criarMockitoCampanha1(), criarMockitoCampanha2()));
+		String campanhaWithJson = json(criarMockitoCampanha1());
 
 		this.mockMvc.perform(post("/campanha/inserirCampanha").contentType(contentType).content(campanhaWithJson))
 				.andExpect(status().isCreated()).andReturn();
@@ -130,12 +114,11 @@ public class CampanhaControllerTeste {
 				.andExpect(status().isOk()).andReturn();
 
 		assertTrue(result.getResponse().getContentAsString().contains("Sou mais Vitória"));
-		assertTrue(result.getResponse().getContentAsString().contains("Avante Palmeiras"));
 	}
 
 	@Test
 	public void removerCampanha() throws Exception {
-		String campanhaWithJson = json(Arrays.asList(criarMockitoCampanha1(), criarMockitoCampanha2()));
+		String campanhaWithJson = json(criarMockitoCampanha1());
 
 		this.mockMvc.perform(post("/campanha/inserirCampanha").contentType(contentType).content(campanhaWithJson))
 				.andExpect(status().isCreated()).andReturn();
@@ -158,6 +141,22 @@ public class CampanhaControllerTeste {
 		this.mockMvc.perform(delete("/campanha/removerCampanha/{id}", id).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNotFound()).andReturn();
 
+	}
+
+	@Test
+	public void listarTodosVigentesSemRetorno() throws Exception {
+
+		for (CampanhaEntity campanha : this.campanhaService.listarTodosVigentes()) {
+			this.mockMvc.perform(
+					delete("/campanha/removerCampanha/{id}", campanha.getId()).accept(MediaType.APPLICATION_JSON))
+					.andReturn();
+		}
+
+		MvcResult result = this.mockMvc
+				.perform(get("/campanha/listaCampanhasVigente").accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andReturn();
+
+		assertTrue(result.getResponse().getContentAsString().equals("[]"));
 	}
 
 	private CampanhaEntity criarMockitoCampanha1() {

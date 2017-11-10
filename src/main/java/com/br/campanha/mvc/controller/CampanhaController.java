@@ -61,8 +61,8 @@ public class CampanhaController {
 			 })
 			
 	@PostMapping(path = "/inserirCampanha")
-	public @ResponseBody List<CampanhaEntity> inserirCampanha(
-			@Valid @RequestBody(required = true) List<CampanhaEntity> campanhaEntity) throws CampanhaInvalidaException, DataInvalidaException{
+	public @ResponseBody CampanhaEntity inserirCampanha(
+			@Valid @RequestBody(required = true) CampanhaEntity campanhaEntity) throws CampanhaInvalidaException, DataInvalidaException{
 		Logger.getLogger("application").info("Inserindo campanha do Controller.");
 		this.campanhaService.inserir(campanhaEntity);
 		return campanhaEntity;
@@ -90,9 +90,10 @@ public class CampanhaController {
 	 */
 	@ApiOperation(value = "Alterar uma campanha existente", notes = "Alterar uma camapnha existente por ID")
 	@ApiResponses(value = { 
-			@ApiResponse(code = 400, message = "Erro de validação nos campos"),
 			@ApiResponse(code = 204, message = "Não encontrado", response = CampanhaNotFoundException.class),
-			@ApiResponse(code = 201, message = "Recurso criado") })
+			@ApiResponse(code = 201, message = "Recurso criado"),
+			@ApiResponse(code = 400, message = "Erro de validação nos campos", response = CampanhaInvalidaException.class),
+			@ApiResponse(code = 404, message = "Não encontrado", response = CampanhaNotFoundException.class)})
 	@PutMapping(value = "/alterarCampanha/{id}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public @ResponseBody CampanhaEntity alterarCampanha(@PathVariable("id") final Long id,
 			@Valid @RequestBody(required = true) CampanhaEntity campanhaEntity) throws CampanhaInvalidaException, CampanhaNotFoundException,DataInvalidaException {
@@ -110,6 +111,7 @@ public class CampanhaController {
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "Succeso", response = CampanhaEntity.class),
 			@ApiResponse(code = 204, message = "Não encontrado", response = CampanhaNotFoundException.class),
+			@ApiResponse(code = 404, message = "Não encontrado", response = CampanhaNotFoundException.class),
 			@ApiResponse(code = 500, message = "Falha") })
 	@DeleteMapping(value = "/removerCampanha/{id}")
 	@ResponseStatus(value = HttpStatus.NO_CONTENT)

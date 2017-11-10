@@ -12,7 +12,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import org.springframework.util.StringUtils;
 
@@ -67,7 +66,6 @@ public class TimeEntity implements Serializable {
 	/**
 	 * @return the nomeTime
 	 */
-	@JsonIgnore
 	public String getNomeTime() {
 		return nomeTime;
 	}
@@ -86,11 +84,11 @@ public class TimeEntity implements Serializable {
 	 * @return
 	 */
 	@JsonIgnore
-	public boolean isValidCampanha() {
+	public boolean isInvalidTime() {
 		if (StringUtils.isEmpty(getNomeTime())) {
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 }

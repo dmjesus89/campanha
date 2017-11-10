@@ -17,6 +17,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -170,8 +172,9 @@ public class CampanhaEntity implements Serializable {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isInvalidCampanha() {
-		if (getNomeCampanha().isEmpty() || getDtInicio() == null || getDtFim() == null) {
+		if (StringUtils.isEmpty(getNomeCampanha()) || getDtInicio() == null || getDtFim() == null || getTimeCoracao() == null) {
 			return true;
 		}
 		return false;

@@ -14,7 +14,7 @@ import com.br.campanha.mvc.entity.CampanhaEntity;
 
 public interface CampanhaService {
 
-	List<CampanhaEntity> inserir(List<CampanhaEntity> listaCampanha) throws CampanhaInvalidaException, DataInvalidaException;
+	CampanhaEntity inserir(CampanhaEntity campanha) throws CampanhaInvalidaException, DataInvalidaException;
 
 	List<CampanhaEntity> listarTodosVigentes();
 
