@@ -20,6 +20,9 @@ public interface CampanhaService {
 
 	void remover(Long id) throws CampanhaNotFoundException;
 
-	CampanhaEntity alterar(Long id, CampanhaEntity campanha) throws CampanhaInvalidaException,CampanhaNotFoundException, DataInvalidaException;
+	CampanhaEntity alterar(Long id, CampanhaEntity campanha)
+			throws CampanhaInvalidaException, CampanhaNotFoundException, DataInvalidaException;
+
+	List<CampanhaEntity> listarTodosVigentesPorTime(final String nomeTime);
 
 }

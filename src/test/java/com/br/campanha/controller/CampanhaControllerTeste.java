@@ -1,12 +1,10 @@
 package com.br.campanha.controller;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -113,7 +111,7 @@ public class CampanhaControllerTeste {
 				.perform(get("/campanha/listaCampanhasVigente").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk()).andReturn();
 
-		assertTrue(result.getResponse().getContentAsString().contains("Sou mais Vitória"));
+		assertTrue(result.getResponse().getContentAsString().contains("1/11/2017"));
 	}
 
 	@Test
@@ -168,15 +166,6 @@ public class CampanhaControllerTeste {
 		return campanha;
 	}
 
-	private CampanhaEntity criarMockitoCampanha2() {
-		TimeEntity timeCoracao = new TimeEntity("Palmeiras");
-		LocalDate dataInicioVigencia = LocalDate.of(2017, 11, 1);
-		LocalDate dataFimVigencia = LocalDate.now();
-
-		CampanhaEntity campanha = new CampanhaEntity("Avante Palmeiras", dataInicioVigencia, dataFimVigencia,
-				timeCoracao);
-		return campanha;
-	}
 
 	protected String json(Object o) throws IOException {
 		MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();

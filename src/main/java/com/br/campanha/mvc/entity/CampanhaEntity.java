@@ -174,7 +174,8 @@ public class CampanhaEntity implements Serializable {
 
 	@JsonIgnore
 	public boolean isInvalidCampanha() {
-		if (StringUtils.isEmpty(getNomeCampanha()) || getDtInicio() == null || getDtFim() == null || getTimeCoracao() == null) {
+		if (StringUtils.isEmpty(getNomeCampanha()) || getDtInicio() == null || getDtFim() == null
+				|| getTimeCoracao() == null) {
 			return true;
 		}
 		return false;

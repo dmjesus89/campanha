@@ -6,7 +6,6 @@
 package com.br.campanha.service.impl;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -18,8 +17,10 @@ import com.br.campanha.exception.CampanhaInvalidaException;
 import com.br.campanha.exception.CampanhaNotFoundException;
 import com.br.campanha.exception.DataInvalidaException;
 import com.br.campanha.mvc.entity.CampanhaEntity;
+import com.br.campanha.mvc.entity.TimeEntity;
 import com.br.campanha.mvc.repository.CampanhaRepository;
 import com.br.campanha.service.CampanhaService;
+import com.br.campanha.service.TimeService;
 
 @Service
 public class CampanhaServiceImpl implements CampanhaService {
@@ -27,24 +28,30 @@ public class CampanhaServiceImpl implements CampanhaService {
 	@Autowired
 	private CampanhaRepository camapanhaRepository;
 
+	@Autowired
+	private TimeService timeService;
+
 	/**
-	 * Serviço exposto para inserir as campanhas.
+	 * Serviço exposto para inserir a campanha.
 	 *
-	 * @return capamanha insredia
+	 * @return capamanha inserida
 	 */
 	@Override
 	@Transactional(rollbackFor = { Exception.class })
-	public CampanhaEntity inserir(CampanhaEntity campanha)
-			throws CampanhaInvalidaException, DataInvalidaException {
+	public CampanhaEntity inserir(CampanhaEntity campanha) throws CampanhaInvalidaException, DataInvalidaException {
 		Logger.getLogger("application").info("Inserindo campanha do Serviço.");
-			if (campanha.isInvalidCampanha() || campanha.getTimeCoracao().isInvalidTime()) {
-				throw new CampanhaInvalidaException();
-			}
-			if (campanha.isInvalidDate()) {
-				throw new DataInvalidaException();
-			}
-			configurarDatasVigencia(campanha);
-			camapanhaRepository.save(campanha);
+		if (campanha.isInvalidCampanha() || campanha.getTimeCoracao().isInvalidTime()) {
+			throw new CampanhaInvalidaException();
+		}
+		if (campanha.isInvalidDate()) {
+			throw new DataInvalidaException();
+		}
+		TimeEntity time = timeService.pesquisarPorNome(campanha.getTimeCoracao().getNomeTime());
+		if (time != null) {
+			campanha.setTimeCoracao(time);
+		}
+		configurarDatasVigencia(campanha);
+		camapanhaRepository.save(campanha);
 		return campanha;
 	}
 
@@ -115,6 +122,17 @@ public class CampanhaServiceImpl implements CampanhaService {
 				campanhaIt.setDtFim(dtFim);
 			}
 		}
+	}
+
+	/**
+	 * Serviço exposto para listar todas campanhas vigentes por time do coração.
+	 *
+	 * @return lista de capamanhas vigentes
+	 */
+	@Override
+	public List<CampanhaEntity> listarTodosVigentesPorTime(final String nomeTime) {
+		Logger.getLogger("application").info("Listando as campanhas vigentes do Serviço.");
+		return this.camapanhaRepository.listarTodosVigentesPorTime(LocalDate.now(), nomeTime);
 	}
 
 	/**
